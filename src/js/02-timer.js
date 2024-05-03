@@ -13,7 +13,7 @@ const picker = flatpickr("#datetime-picker", {
       Notiflix.Notify.warning("Date in the past is not allowed");
       return;
     }
-    startButton.disabled = false; 
+    startButton.disabled = false;
   },
 });
 
@@ -50,7 +50,7 @@ startButton.addEventListener("click", () => {
     Notiflix.Notify.warning("Date in the past is not allowed");
     return;
   }
-  startButton.disabled = true; 
+  startButton.disabled = true;
 
   intervalId = setInterval(updateTimer, 1000);
 });
@@ -58,7 +58,7 @@ startButton.addEventListener("click", () => {
 function updateTimer() {
   const targetDate = picker.selectedDates[0];
   const now = new Date();
-  const diffMs = targetDate.getTime() - now.getTime();
+  let diffMs = targetDate.getTime() - now.getTime();
 
   if (diffMs < 0) {
     diffMs = 0;
@@ -74,6 +74,6 @@ function updateTimer() {
   if (diffMs <= 0) {
     clearInterval(intervalId);
     Notiflix.Notify.success("Countdown finished!");
-    startButton.disabled = false; 
+    startButton.disabled = false;
   }
 }
