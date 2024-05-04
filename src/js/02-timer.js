@@ -2,76 +2,77 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import Notiflix from "notiflix";
 
-const picker = flatpickr("#datetime-picker", {
-  enableTime: true,
-  time_24hr: true,
-  defaultDate: new Date(),
-  minuteIncrement: 1
-});
+export function initializeTimer() {
+  const picker = flatpickr("#datetime-picker", {
+    enableTime: true,
+    time_24hr: true,
+    defaultDate: new Date(),
+    minuteIncrement: 1
+  });
 
-const startButton = document.querySelector("[data-start]");
-const fields = document.querySelectorAll(".field");
-const daysValue = document.querySelector("[data-days]");
-const hoursValue = document.querySelector("[data-hours]");
-const minutesValue = document.querySelector("[data-minutes]");
-const secondsValue = document.querySelector("[data-seconds]");
+  const startButton = document.querySelector("[data-start]");
+  const daysValue = document.querySelector("[data-days]");
+  const hoursValue = document.querySelector("[data-hours]");
+  const minutesValue = document.querySelector("[data-minutes]");
+  const secondsValue = document.querySelector("[data-seconds]");
 
-function convertMs(ms) {
-  const second = 1000;
-  const minute = second * 60;
-  const hour = minute * 60;
-  const day = hour * 24;
+  startButton.addEventListener("click", () => {
+    const selectedDate = picker.selectedDates[0];
+    const currentDate = new Date();
 
-  const days = Math.floor(ms / day);
-  const hours = Math.floor((ms % day) / hour);
-  const minutes = Math.floor(((ms % day) % hour) / minute);
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+    if (!selectedDate || selectedDate < currentDate) {
+      Notiflix.Notify.warning("Please select a valid future date");
+      return;
+    }
 
-  return { days, hours, minutes, seconds };
-}
+    startButton.disabled = true;
 
-function addLeadingZero(value) {
-  return value.toString().padStart(2, "0");
-}
+    intervalId = setInterval(updateTimer, 1000);
+  });
 
-let intervalId;
+  let intervalId;
 
-startButton.addEventListener("click", () => {
-  const selectedDate = picker.selectedDates[0];
-  const currentDate = new Date();
+  function updateTimer() {
+    const targetDate = picker.selectedDates[0];
+    const now = new Date();
+    let diffMs = targetDate.getTime() - now.getTime();
 
-  if (!selectedDate || selectedDate < currentDate) {
-    Notiflix.Notify.warning("Please select a valid future date");
-    return;
+    if (diffMs < 0) {
+      diffMs = 0;
+    }
+
+    const { days, hours, minutes, seconds } = convertMs(diffMs);
+
+    daysValue.textContent = addLeadingZero(days);
+    hoursValue.textContent = addLeadingZero(hours);
+    minutesValue.textContent = addLeadingZero(minutes);
+    secondsValue.textContent = addLeadingZero(seconds);
+
+    if (diffMs <= 0) {
+      clearInterval(intervalId);
+      Notiflix.Notify.success("Countdown finished!");
+      startButton.disabled = false;
+      return;
+    }
+
+    startButton.disabled = true;
   }
 
-  startButton.disabled = true;
+  function convertMs(ms) {
+    const second = 1000;
+    const minute = second * 60;
+    const hour = minute * 60;
+    const day = hour * 24;
 
-  intervalId = setInterval(updateTimer, 1000);
-});
+    const days = Math.floor(ms / day);
+    const hours = Math.floor((ms % day) / hour);
+    const minutes = Math.floor(((ms % day) % hour) / minute);
+    const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
-function updateTimer() {
-  const targetDate = picker.selectedDates[0];
-  const now = new Date();
-  let diffMs = targetDate.getTime() - now.getTime();
-
-  if (diffMs < 0) {
-    diffMs = 0;
+    return { days, hours, minutes, seconds };
   }
 
-  const { days, hours, minutes, seconds } = convertMs(diffMs);
-
-  daysValue.textContent = addLeadingZero(days);
-  hoursValue.textContent = addLeadingZero(hours);
-  minutesValue.textContent = addLeadingZero(minutes);
-  secondsValue.textContent = addLeadingZero(seconds);
-
-  if (diffMs <= 0) {
-    clearInterval(intervalId);
-    Notiflix.Notify.success("Countdown finished!");
-    startButton.disabled = false; 
-    return; 
+  function addLeadingZero(value) {
+    return value.toString().padStart(2, "0");
   }
-
-  startButton.disabled = true;
 }
