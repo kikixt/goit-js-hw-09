@@ -38,10 +38,13 @@ let intervalId;
 
 startButton.addEventListener("click", () => {
   const selectedDate = picker.selectedDates[0];
-  if (selectedDate < new Date()) {
-    Notiflix.Notify.warning("Date in the past is not allowed");
+  const currentDate = new Date();
+
+  if (!selectedDate || selectedDate < currentDate) {
+    Notiflix.Notify.warning("Please select a valid future date");
     return;
   }
+
   startButton.disabled = true;
 
   intervalId = setInterval(updateTimer, 1000);
@@ -66,10 +69,9 @@ function updateTimer() {
   if (diffMs <= 0) {
     clearInterval(intervalId);
     Notiflix.Notify.success("Countdown finished!");
-    startButton.disabled = false; // Активуємо кнопку "Start"
-    return; // Виходимо з функції, щоб не перевіряти додатково
+    startButton.disabled = false; 
+    return; 
   }
 
-  // В іншому випадку, коли таймер не завершено, тримаємо кнопку вимкненою
   startButton.disabled = true;
 }
