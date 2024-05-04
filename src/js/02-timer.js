@@ -6,15 +6,7 @@ const picker = flatpickr("#datetime-picker", {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
-  minuteIncrement: 1,
-  onClose(selectedDates) {
-    const selectedDate = selectedDates[0];
-    if (selectedDate < new Date()) {
-      Notiflix.Notify.warning("Date in the past is not allowed");
-      return;
-    }
-    startButton.disabled = false;
-  },
+  minuteIncrement: 1
 });
 
 const startButton = document.querySelector("[data-start]");
@@ -74,6 +66,10 @@ function updateTimer() {
   if (diffMs <= 0) {
     clearInterval(intervalId);
     Notiflix.Notify.success("Countdown finished!");
-    startButton.disabled = false;
+    startButton.disabled = false; // Активуємо кнопку "Start"
+    return; // Виходимо з функції, щоб не перевіряти додатково
   }
+
+  // В іншому випадку, коли таймер не завершено, тримаємо кнопку вимкненою
+  startButton.disabled = true;
 }
